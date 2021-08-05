@@ -1,0 +1,58 @@
+#!/bin/bash
+
+WORD=word
+
+build(){
+echo "Building and running KRaft container"
+  docker build -t kraft-img .
+  docker run -d --name kraft-demo kraft-img
+  #docker exec -ti kraft-demo /bin/bash
+}
+showmenu(){
+  WORD=$(shuf -n1  /usr/share/dict/words) 
+  clear
+  echo -ne "
+  _   _   _   _   _     _   _   _   _  
+ / \ / \ / \ / \ / \   / \ / \ / \ / \ 
+( K | R | a | f | t ) ( D | e | m | o )
+ \_/ \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ 
+
+What should we do?
+  1) Create a topic called ${WORD}
+  2) Dump the metadata log
+  3) Start the metadata shell
+  4) Exit
+  
+Choose now: "
+}
+readanswer(){
+  read ANS
+  case ${ANS} in
+    1) docker exec -t kraft-demo /bin/kafka-topics --bootstrap-server localhost:9092 --create --topic ${WORD} --partitions 1 --replication-factor 1 
+       sleep 1 && echo "OK"
+       ;;
+    2) docker exec -t kraft-demo /bin/kafka-dump-log --cluster-metadata-decoder --skip-record-metadata --files /tmp/kraft-combined-logs/\@metadata-0/00000000000000000000.log
+       sleep 10 && echo "OK"
+       ;;
+    3) docker exec -ti kraft-demo /bin/kafka-metadata-shell  --snapshot /tmp/kraft-combined-logs/\@metadata-0/00000000000000000000.log
+       sleep 1 && echo "OK"
+       ;;
+    4) cleanup && exit 0
+       ;;
+    *) echo "oops, no selection" 
+       ;;
+  esac
+}
+cleanup(){
+  echo "Stopping the demo and cleaning up"
+  docker stop kraft-demo > /dev/null 2>&1
+  docker rm kraft-demo > /dev/null 2>&1
+  docker rmi kraft-img > /dev/null 2>&1
+}
+#main
+build
+while true
+do
+  showmenu
+  readanswer
+done
