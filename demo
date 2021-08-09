@@ -50,6 +50,7 @@ cleanup(){
   docker rmi kraft-img > /dev/null 2>&1
 }
 #main
+trap "{ cleanup; exit 255; }" SIGINT
 build
 while true
 do
