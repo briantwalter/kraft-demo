@@ -1,6 +1,8 @@
 #!/bin/bash
 
 WORD=word
+COLOR='\033[4;92m'
+NOCOLOR='\033[0m'
 
 build(){
 echo "Building and running KRaft container"
@@ -8,7 +10,7 @@ echo "Building and running KRaft container"
   docker run -d --name kraft-demo kraft-img
 }
 showmenu(){
-  WORD=$(shuf -n1  /usr/share/dict/words | tr '[:upper:]' '[lower]') 
+  WORD=$(shuf -n1  /usr/share/dict/words | tr '[:upper:]' '[:lower:]') 
   clear
   echo -ne "
   _   _   _   _   _     _   _   _   _  
@@ -17,7 +19,7 @@ showmenu(){
  \_/ \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ 
 
 What should we do?
-  1) Create a topic called ${WORD}
+  1) Create a topic called ${COLOR}${WORD}${NOCOLOR}
   2) Dump the metadata log
   3) Start the metadata shell
   4) Start and attach bash shell
