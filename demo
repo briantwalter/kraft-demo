@@ -6,10 +6,9 @@ build(){
 echo "Building and running KRaft container"
   docker build -t kraft-img .
   docker run -d --name kraft-demo kraft-img
-  #docker exec -ti kraft-demo /bin/bash
 }
 showmenu(){
-  WORD=$(shuf -n1  /usr/share/dict/words) 
+  WORD=$(shuf -n1  /usr/share/dict/words | tr '[:upper:]' '[lower]') 
   clear
   echo -ne "
   _   _   _   _   _     _   _   _   _  
@@ -21,7 +20,8 @@ What should we do?
   1) Create a topic called ${WORD}
   2) Dump the metadata log
   3) Start the metadata shell
-  4) Exit
+  4) Start and attach bash shell
+  5) Exit
   
 Choose now: "
 }
@@ -37,7 +37,10 @@ readanswer(){
     3) docker exec -ti kraft-demo /bin/kafka-metadata-shell  --snapshot /tmp/kraft-combined-logs/\@metadata-0/00000000000000000000.log
        sleep 1 && echo "OK"
        ;;
-    4) cleanup && exit 0
+    4) docker exec -ti kraft-demo /bin/bash
+       sleep 1 && echo "OK"
+       ;;
+    5) cleanup && exit 0
        ;;
     *) echo "oops, no selection" 
        ;;
